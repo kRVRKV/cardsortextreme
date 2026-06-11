@@ -83,6 +83,7 @@
         width: 100%;
       }
       .card {
+        position: relative;
         width: 190px;
         max-width: calc(50vw - 45px);
         margin: 5px;
@@ -97,6 +98,7 @@
       .card-text {
         background: #ee6;
         border: none;
+        cursor: grab;
       }
       .card .card-image {
         width: 100%;
@@ -107,14 +109,31 @@
         margin-bottom: 4px;
       }
       .card .btn-dup-card {
-        position: relative;
-        top: -33px;
-        right: 0px;
-        display: block;
+        position: absolute;
+        top: -27px;
+        right: 3px;
         color: gold;
         border: none;
-        background: #ee6;
+        background: transparent;
         cursor: pointer;
+        padding: 0;
+        line-height: 1;
+      }
+      .card .btn-delete-card {
+        position: absolute;
+        top: -27px;
+        left: 3px;
+        color: gold;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        opacity: 0.5;
+        font-size: 14px;
+      }
+      .card:hover .btn-delete-card {
+        opacity: 1;
       }
       .card .show-original {
         text-decoration-line: line-through;
@@ -150,22 +169,37 @@
         font-size: 20px;
         color: inherit;
       }
-      .category-cards .grid {
-        min-height: 100px;
-      }
       .category-cards .item {
         width: 100%;
       }
       .category-controls {
+        display: flex;
+        align-items: center;
         margin-bottom: 5px;
       }
       .category-drag-handle {
-        width: 100%;
+        flex: 1;
         height: 16px;
         background: radial-gradient(#ddd 35%, transparent 36%) 0 0;
         background-color: #fff;
         background-size: 8px 8px;
         cursor: grab;
+      }
+      .btn-delete-category {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0 3px;
+        font-size: 14px;
+        opacity: 0.3;
+        line-height: 1;
+        transition: opacity 0.15s;
+      }
+      .category:hover .btn-delete-category {
+        opacity: 1;
+      }
+      .category-cards .grid {
+        min-height: 100px;
       }
     </style>
   </head>
@@ -186,7 +220,8 @@
     <template class="card-template">
       <div class="item">
         <div class="item-content">
-          <div class="card">
+          <div class="card" tabindex="0">
+            <button class="btn-delete-card" title="Remove this card">🗑️</button>
             <button class="btn-dup-card" title="Duplicate this card">➕</button>
           </div>
         </div>
@@ -198,6 +233,7 @@
           <div class="category">
             <div class="category-controls">
               <div class="category-drag-handle"></div>
+              <button class="btn-delete-category" title="Delete this category">🗑️</button>
             </div>
             <input class="title" placeholder="Type a name" />
             <div class="category-cards">
@@ -311,6 +347,22 @@
         const targetGrid = categoryGrid || uncategorizedCardsGrid;
         const itemElement = document.importNode(cardTemplate.content.children[0], true);
         const cardElement = itemElement.querySelector('.card');
+        const buttonDeleteCard = cardElement.querySelector('.btn-delete-card');
+        if (settings.allowCardDup === true || settings.allowCardEditing === true) {
+          buttonDeleteCard.addEventListener('click', () => {
+            for (const grid of cardGrids) {
+              const item = grid.getItems().find(i => i.getElement() === itemElement);
+              if (item) {
+                grid.remove([item], { removeElements: true });
+                break;
+              }
+            }
+            categoriesGrid.refreshItems().layout();
+            debouncedUpdateData();
+          });
+        } else {
+          buttonDeleteCard.remove();
+        }
         const buttonDuplicateCard = cardElement.querySelector('.btn-dup-card');
         if (settings.allowCardDup === true) {
           buttonDuplicateCard.addEventListener('click', () => createCard(text));
@@ -462,6 +514,20 @@
                 debouncedUpdateData();
               });
               cardGrids.push(categoryGrid);
+              const buttonDeleteCategory = itemElement.querySelector('.btn-delete-category');
+              buttonDeleteCategory.addEventListener('click', () => {
+                const cardItems = categoryGrid.getItems();
+                for (const cardItem of cardItems) {
+                  uncategorizedCardsGrid.add([cardItem.getElement()]);
+                }
+                cardGrids.splice(cardGrids.indexOf(categoryGrid), 1);
+                categoryGrid.destroy(false);
+                const catItem = categoriesGrid.getItems().find(i => i.getElement() === itemElement);
+                if (catItem) categoriesGrid.remove([catItem], { removeElements: true });
+                categoriesGrid.refreshItems().layout();
+                uncategorizedCardsGrid.refreshItems().layout();
+                debouncedUpdateData();
+              });
               const cardTexts = data[name] || [];
               for (const text of cardTexts) {
                 createCard(text, categoryGrid);

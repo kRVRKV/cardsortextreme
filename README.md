@@ -8,7 +8,7 @@ It is most effective when used in conjunction with other tools. For example, you
 
 Card Sort Allows to:
 
-- Quickly create card to sort from a simple comma separated list of items
+- Quickly create a set of cards to sort from a simple comma separated list of items
 - Quickly preset some categories (comma-separated list of categories)  
 [![Screenshot showing how to set cards and categories](./images/set_cards_cats_s.png)](./images/set_cards_cats.png)
 - Choose if cards are randomized or not

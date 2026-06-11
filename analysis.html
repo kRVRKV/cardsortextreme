@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf8" />
@@ -17,6 +17,9 @@
       }
       * {
         box-sizing: border-box;
+      }
+      button, select, input {
+        cursor: pointer;
       }
       .results-input-container {
         padding: 15px;
@@ -47,12 +50,6 @@
       }
       .category-refinement .title-bar h2 {
         margin: 0;
-      }
-      .dendrogram .title-bar {
-        position: sticky;
-        top: 0;
-        padding: 15px;
-        background: #fff;
       }
       .category-refinement .title-bar button,
       .category-refinement .title-bar input[type="checkbox"],
@@ -263,25 +260,14 @@
         overflow: hidden;
       }
 
-      .link { stroke:#6666ff; fill:none; stroke-width:1.5; }
-      .legend { margin-left:8px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
-      .legend .item { display:flex; gap:6px; align-items:center;}
-      .colorbox { width:1em; height:1em; border:1px solid #999; display:inline-block; }
-      .controls-row { display:flex; gap:8px; align-items:center; }
-      #kValue { font-weight:600; margin-left:0.5em; }
-      input[type="range"] { vertical-align:middle; }
-      .editable-input { padding:2px 4px; }
-      button#redraw {display:none;}
-      .legend-title * {display: inline}
-      input#labelNum {width: 3em}
-      #processed input, ul {display: none;}
+#processed input, ul {display: none;}
       #processed label {
         position: relative;
         display: inline-block;
         cursor: pointer;
       }
       #processed label:after {
-            content: "↓";
+            content: "â†“";
           display: inline-block;
           margin-left: 0.2em;
           margin-right: 0.2em;
@@ -293,7 +279,7 @@
         font-weight: bold;
       }
       #processed input:checked~ul {display: block;}
-      #processed input:checked~label:after {content: "↑";}
+      #processed input:checked~label:after {content: "â†‘";}
       #processed input:checked~ul {
         border: 1px solid #cfcfff;
         border-radius: 7px;
@@ -342,12 +328,16 @@
       <style class="similarity-hover-effect-stylesheet"></style>
       <div class="title-bar">
         <h2>Category refinement</h2>
-        <button>🤖 Auto-merge</button>
-        <button class="button-recalculate" disabled>👇 Apply changes</button>
-        <button class="btn-share-result">🔗 Share refinement</button>
+        <button>ðŸ¤– Auto-merge</button>
+        <button class="button-recalculate" disabled>ðŸ‘‡ Apply changes</button>
+        <button class="btn-share-result">ðŸ”— Share refinement</button>
         <label for="similarity-hover-effect-toggle">
           <input type="checkbox" id="similarity-hover-effect-toggle" />
           Similarity highlight on hover
+        </label>
+        <label for="sort-alphabetically">
+          <input type="checkbox" id="sort-alphabetically" />
+          Sort categories alphabetically
         </label>
       </div>
       <div class="categories"></div>
@@ -355,47 +345,9 @@
     <div id="associations" class="associations">
       <div class="title-bar">
         <h2>Category&ndash;card table</h2>
-        <button class="btn-export-result">📦 Export result (CSV)</button>
+        <button class="btn-export-result">ðŸ“¦ Export result (CSV)</button>
       </div>
       <table class="association-table"></table>
-    </div>
-    <div id="dendrogram" class="dendrogram">
-      <div class="title-bar">
-        <h2>Card dendrogram (alpha version, for testing purpose only)</h2>
-        <div class="dd-controls">
-          <div class="dd-controls-row">
-            <label>🗂️&nbsp;Grouping algorithm:
-              <select id="linkageSelect">
-                <option value="single">Single (min)</option>
-                <option value="complete">Complete (max)</option>
-                <option value="average">Average (UPGMA)</option>
-              </select>
-            </label>
-            <label>📏&nbsp;Distance algorithm:
-              <select id="distSelect">
-                <option value="jaccardDistance">Jaccard</option>
-                <option value="brayCurtisDistance">Bray-Curtis</option>
-                <option value="manhattanDistance">Manhattan</option>
-                <option value="euclideanDistance">Euclidean</option>
-                <option value="cosineDistance">Cosine</option>
-              </select>
-            </label>
-            <button id="redraw">🖌️ Draw</button><button id="exportSvg">📦 Export SVG</button>
-          </div>
-          <div class="dd-controls-row">
-            <label for="kRange">Number of Categories (k):</label>
-            <input id="kRange" type="range" min="1" max="15" value="3" step="1" />
-            <span id="kValue">3</span>
-            <div class="legend-title">
-              <h3>Categories</h3>
-              (<label for="labelNum">Number of categories used for labels below: </label>
-              <input id="labelNum" type="number" name="number" value="2"/>)
-            </div>
-            <div class="legend" id="legend"></div>
-          </div>
-        </div>
-      </div>
-      <div id="dd-container"></div>
     </div>
     <template class="category-template">
       <div class="category" spellcheck="false">
@@ -403,15 +355,15 @@
         <div class="category-cards"></div>
         <div class="merged-categories"></div>
         <div class="category-merge-tool">
-          <button class="category-merge-button-start">🫴 Merge this category into...</button>
-          <button class="category-merge-button-end">👉 Merge into here</button>
-          <button class="category-merge-button-cancel">❌ Cancel merge</button>
+          <button class="category-merge-button-start">ðŸ«´ Merge this category into...</button>
+          <button class="category-merge-button-end">ðŸ‘‰ Merge into here</button>
+          <button class="category-merge-button-cancel">âŒ Cancel merge</button>
         </div>
       </div>
     </template>
     <template class="merged-category-template">
       <div class="merged-category">
-        <div class="merged-category-button-undo">❌</div>
+        <div class="merged-category-button-undo">âŒ</div>
         <div class="merged-category-name"></div>
       </div>
     </template>
@@ -454,19 +406,31 @@
             results = results.map(JSON.parse);
           }
         }
-        else if (text.includes('http')) {
-          results = text.split('http');
-          results = results.map(result => result.trim());
-          results = results.filter(result => !!result);
-          results = results.map(async result => {
-            const url = 'http' + result;
-            const urlObj = new URL(url);
-            const data = await loadFromString(urlObj.hash.split('#').pop());
-            const keyValuePairs = Object.entries(data).filter(([key, value]) => !reservedKeys.includes(key));
-            result = Object.fromEntries(keyValuePairs);
-            return result;
-          });
-          results = await Promise.all(results);
+        else if (text.includes('://') || text.includes('#')) {
+          const urlPattern = /(?:https?|file):\/\/\S+/g;
+          const urlMatches = text.match(urlPattern) || [];
+          if (urlMatches.length > 0) {
+            results = urlMatches.map(async urlStr => {
+              try {
+                const urlObj = new URL(urlStr);
+                const hashContent = urlObj.hash.slice(1);
+                if (!hashContent) return null;
+                const data = await loadFromString(hashContent);
+                const keyValuePairs = Object.entries(data).filter(([key, value]) => !reservedKeys.includes(key));
+                return Object.fromEntries(keyValuePairs);
+              } catch(e) { return null; }
+            });
+            results = (await Promise.all(results)).filter(Boolean);
+          } else {
+            const hashContent = text.trim().replace(/^#/, '');
+            if (hashContent) {
+              try {
+                const data = await loadFromString(hashContent);
+                const keyValuePairs = Object.entries(data).filter(([key, value]) => !reservedKeys.includes(key));
+                results = [Object.fromEntries(keyValuePairs)];
+              } catch(e) {}
+            }
+          }
         }
         if (results.length > 0) {
           resultsInput.value = '';
@@ -507,12 +471,13 @@
               const baseUrl = window.location.href.replace(regexRemoveBasenameFromUrl, '/');
               const url = baseUrl + 'card-sort.html#' + dataString;
               p++
-              list += "<li>Spread #"+p.toString()+" ("+countCard.toString()+" Cards in "+catNum.toString()+" Categories) <a href='"+url.toString()+"'>🔗 Show spread page</a></li>";
+              list += "<li>Spread #"+p.toString()+" ("+countCard.toString()+" Cards in "+catNum.toString()+" Categories) <a href='"+url.toString()+"'>ðŸ”— Show spread page</a></li>";
 
             }
-            report.insertAdjacentHTML("beforeend",list+"</ul> <button id='exportall'>📦 Export all data (JSON)</button>");
+            report.insertAdjacentHTML("beforeend",list+"</ul> <button id='exportall'>ðŸ“¦ Export all data (JSON)</button>");
             buttonExportAll = document.querySelector('#exportall');
             buttonExportAll.addEventListener('click', exportAll);
+            document.title = loadedResults.length.toString()+' spreads â€” Card Sorting Analysis'
               }
         return;
       }
@@ -531,8 +496,6 @@
 
         renderCategoryRefinement(data);
         renderAssociationTable(data);
-
-        renderDendrogramFromJSON(loadedResults);
 
         console.log('data', data);
       }
@@ -686,10 +649,21 @@
         similarityHoverEffectStyleElement.innerHTML = '';
         isSimilarityHoverEffectApplied = false;
       });
+      const sortAlphabetically = document.querySelector('#sort-alphabetically');
+      let sortingNeeded = sortAlphabetically.checked;
+      sortAlphabetically.addEventListener('change', () => {
+        sortingNeeded = sortAlphabetically.checked
+        calculateAndRender();
+        });
+      
       initialize();
 
       function renderCategoryRefinement(data) {
         const categoryElements = [];
+        const categories = data.categories;
+        if (sortingNeeded) {
+          categories.sort((catA, catB) => catA.name.localeCompare(catB.name));
+        }
         for (const category of data.categories) {
           const categoryElement = document.importNode(categoryTemplate.content.children[0], true);
           const similarityHoverSelector = [];
@@ -841,10 +815,10 @@
         tableHtml += '<tr>';
         tableHtml += `
         <th>
-          Categories →
+          Categories â†’
           <br />
-          Cards ↓
-          <button class="associations-button-swap-axes" data-target="x-cards-y-categories">🔃 Swap axes</button>
+          Cards â†“
+          <button class="associations-button-swap-axes" data-target="x-cards-y-categories">ðŸ”ƒ Swap axes</button>
         </th>
         `;
         tableCSV1 += `Cards,`;
@@ -894,10 +868,10 @@
         tableHtml += '<tr>';
         tableHtml += `
         <th>
-          Cards →
+          Cards â†’
           <br />
-          Categories ↓
-          <button class="associations-button-swap-axes" data-target="x-categories-y-cards">🔄 Swap axes</button>
+          Categories â†“
+          <button class="associations-button-swap-axes" data-target="x-categories-y-cards">ðŸ”„ Swap axes</button>
         </th>
         `;
         tableCSV2 += `Categories,`;
@@ -971,7 +945,7 @@
           }
           navigator.clipboard.writeText(tableCSV);
           const originalText = buttonExportResult.textContent;
-          buttonExportResult.textContent = '📋 Data copied to clipboard';
+          buttonExportResult.textContent = 'ðŸ“‹ Data copied to clipboard';
           clearTimeout(buttonExportResult._textTimeout);
           buttonExportResult._textTimeout = setTimeout(() => {
             buttonExportResult.textContent = originalText;
@@ -989,7 +963,7 @@
         if (navigator.clipboard) {
           navigator.clipboard.writeText(serializedData);
           const originalText = buttonExportAll.textContent;
-          buttonExportAll.textContent = '📋 Data copied to clipboard';
+          buttonExportAll.textContent = 'ðŸ“‹ Data copied to clipboard';
           clearTimeout(buttonExportAll._textTimeout);
           buttonExportAll._textTimeout = setTimeout(() => {
             buttonExportAll.textContent = originalText;
@@ -1019,7 +993,7 @@
         else if (navigator.clipboard) {
           navigator.clipboard.writeText(url);
           const originalText = buttonShareResult.textContent;
-          buttonShareResult.textContent = '📋 Link copied to clipboard';
+          buttonShareResult.textContent = 'ðŸ“‹ Link copied to clipboard';
           clearTimeout(buttonShareResult._textTimeout);
           buttonShareResult._textTimeout = setTimeout(() => {
             buttonShareResult.textContent = originalText;
@@ -1043,625 +1017,7 @@
         }
       }
 
-      function renderDendrogramFromJSON(jsonVotes, containerId = "dd-container", options = {}) {
-        const cfg = Object.assign({
-          width: Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0) * 90 / 100,
-          heightPerLeaf: 22,
-          initialLinkage: 'average',
-          initialK: 4,
-          distanceFn: brayCurtisDistance,
-          labelNum: 2,
-        }, options);
 
-        const DISTANCE_FUNCS = {
-          'brayCurtisDistance': brayCurtisDistance,
-          'jaccardDistance': jaccardDistance,
-          'euclideanDistance': euclideanDistance,
-          'manhattanDistance': manhattanDistance,
-          'cosineDistance': cosineDistance
-        };
-
-        // Export SVG
-        function inlineAndExportSVG(filename = 'dendrogram.svg') {
-          const container = document.getElementById(containerId);
-          if (!container) { alert('No container!'); return; }
-          const svg = container.querySelector('svg');
-          if (!svg) { alert('No SVG found to export'); return; }
-
-          // Clone so we don't modify original displayed SVG
-          const clone = svg.cloneNode(true);
-
-          // Ensure namespace attrs
-          clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-          clone.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
-
-          // Helper: get computed style and return CSS text for relevant properties
-          function computedStyleToString(el) {
-            const cs = window.getComputedStyle(el);
-            // list of properties commonly needed for SVG visuals; extend if necessary
-            const props = [
-              'fill', 'fill-opacity', 'stroke', 'stroke-width', 'stroke-opacity',
-              'opacity', 'font-size', 'font-family', 'font-weight', 'text-anchor',
-              'visibility', 'display'
-            ];
-            const parts = [];
-            for (const p of props) {
-              const v = cs.getPropertyValue(p);
-              if (v && v !== '' && v !== 'none' && v !== 'rgba(0, 0, 0, 0)' && v !== 'normal') {
-                parts.push(`${p}: ${v};`);
-              }
-            }
-            return parts.join(' ');
-          }
-
-          // Walk DOM tree of clone and inline styles based on the original's computed style
-          const origEls = svg.querySelectorAll('*');
-          const cloneEls = clone.querySelectorAll('*');
-          // include root element too
-          const allOrig = [svg].concat(Array.from(origEls));
-          const allClone = [clone].concat(Array.from(cloneEls));
-
-          for (let i = 0; i < allOrig.length; i++) {
-            const o = allOrig[i];
-            const c = allClone[i];
-            if (!o || !c) continue;
-
-            const styleText = computedStyleToString(o);
-            // Merge with existing inline style on clone (original attributes preserved)
-            const existing = c.getAttribute('style') || '';
-            c.setAttribute('style', (existing + ' ' + styleText).trim());
-
-            // Some SVG viewers don't accept 'class' hooks; removing class helps portability
-            c.removeAttribute('class');
-
-            const attrsToCopy = ['width','height','viewBox','x','y','cx','cy','r','d','transform','x1','x2','y1','y2'];
-            attrsToCopy.forEach(a => {
-              if (!c.hasAttribute(a) && o.hasAttribute(a)) {
-                c.setAttribute(a, o.getAttribute(a));
-              }
-            });
-          }
-
-          // Optionally inline <style> elements (copy them into the clone)
-          const styleEls = Array.from(document.querySelectorAll('style'));
-          if (styleEls.length) {
-            const styleText = styleEls.map(s => s.textContent).join('\n');
-            if (styleText.trim()) {
-              const styleNode = document.createElementNS('http://www.w3.org/2000/svg', 'style');
-              styleNode.textContent = styleText;
-              // prepend so rules apply
-              clone.insertBefore(styleNode, clone.firstChild);
-            }
-          }
-
-          // Serialize
-          const serializer = new XMLSerializer();
-          let source = serializer.serializeToString(clone);
-          if (!source.match(/^<\?xml/)) source = '<?xml version="1.0" standalone="no"?>\n' + source;
-
-          const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = filename;
-          document.body.appendChild(a);
-          a.click();
-          a.remove();
-          setTimeout(() => URL.revokeObjectURL(url), 1000);
-          
-        }
-
-        
-        // --- Transform JSON votes -> matrix (items = cards, features = categories) -
-        // 1) Collect the universe of cards and categories.
-        const cardSet = new Set();
-        const catSet = new Set();
-        // Iterate each participant's vote object: { categoryName: string[] }
-        jsonVotes.forEach(voteObj => {
-          Object.entries(voteObj || {}).forEach(([cat, cards]) => {
-            if (!cat) return;
-            catSet.add(cat);
-            (Array.isArray(cards) ? cards : []).forEach(c => { if (c) cardSet.add(c); });
-          });
-        });
-        const featureNames = Array.from(catSet);      // columns = categories
-        const cardNames = Array.from(cardSet);        // rows = cards
-
-        // 2) Build a map card -> feature vector (counts per category aggregated across participants).
-        const cardIndex = new Map(cardNames.map((c, i) => [c, i]));
-        const catIndex = new Map(featureNames.map((c, i) => [c, i]));
-        const M = cardNames.length;
-        const F = featureNames.length;
-        const matrix = Array.from({ length: M }, () => new Array(F).fill(0));
-
-        // 3) Fill counts: for every participant, for each category, increment that category for listed cards.
-        jsonVotes.forEach(voteObj => {
-          Object.entries(voteObj || {}).forEach(([cat, cards]) => {
-            const fi = catIndex.get(cat);
-            if (fi == null) return;
-            (Array.isArray(cards) ? cards : []).forEach(card => {
-              const ri = cardIndex.get(card);
-              if (ri != null) {
-                // Increment count :Participants can pick same card multiple times in one cat
-                matrix[ri][fi] += 1;
-              }
-            });
-          });
-        });
-
-        // 4) Create items array used by the clustering pipeline.
-        const items = cardNames.map((name, idx) => ({
-          name, vec: matrix[idx].map(v => Number.isFinite(v) ? v : 0), origIndex: idx
-        }));
-
-        //  --- Jaccard Distance  ---
-        function jaccardDistance(a, b) {
-          let inter = 0, uni = 0;
-          for (let i = 0; i < a.length; i++) {
-            const ai = a[i] > 0 ? 1 : 0;
-            const bi = b[i] > 0 ? 1 : 0;
-            if (ai === 1 || bi === 1) uni++;
-            if (ai === 1 && bi === 1) inter++;
-          }
-          return uni === 0 ? 1 : 1 - (inter / uni);
-        }
-        // --- Bray-Curtis Distance ---/proportion vectors (robust for compositional data).
-        function brayCurtisDistance(a, b) {
-          let sumAbsDiff = 0, sumAbs = 0;
-          for (let i = 0; i < a.length; i++) {
-            sumAbsDiff += Math.abs(a[i] - b[i]);
-            sumAbs += a[i] + b[i];
-          }
-          return sumAbs === 0 ? 0 : sumAbsDiff / sumAbs;
-        }
-        // --- Euclidienne Distance ---
-        function euclideanDistance(a, b) {
-          let sum = 0;
-          for (let i = 0; i < a.length; i++) sum += Math.pow(a[i] - b[i], 2);
-          return Math.sqrt(sum);
-        }
-        // ---Manhattan Distance ---
-        function manhattanDistance(a, b) {
-          let sum = 0;
-          for (let i = 0; i < a.length; i++) sum += Math.abs(a[i] - b[i]);
-          return sum;
-        }
-        // --- Cosine Distance ---
-        function cosineDistance(a, b) {
-          let dot = 0, na = 0, nb = 0;
-          for (let i = 0; i < a.length; i++) {
-            dot += a[i] * b[i];
-            na += a[i] * a[i];
-            nb += b[i] * b[i];
-          }
-          const denom = Math.sqrt(na) * Math.sqrt(nb);
-          return denom === 0 ? 1 : 1 - (dot / denom);
-        }
-
-        // --- Agglomerative clustering (single/complete/average linkage) -----------
-        function agglomerative(items, distanceFn, linkage = 'single') {
-          const clusters = items.map((it, idx) => ({
-            id: 'n' + idx, members: [idx], size: 1, children: null, height: 0, name: it.name, index: idx
-          }));
-          const n0 = clusters.length;
-          let dist = Array.from({ length: n0 }, () => Array(n0).fill(Infinity));
-
-          // computing distances
-          for (let i = 0; i < n0; i++) {
-            for (let j = i + 1; j < n0; j++) {
-              dist[i][j] = dist[j][i] = distanceFn(items[i].vec, items[j].vec);
-            }
-          }
-          const active = new Set(Array.from({ length: n0 }, (_, i) => i));
-          let currentIndex = n0;
-          function findMinPair() {
-            let mi = Infinity, a = -1, b = -1;
-            for (const i of active) {
-              for (const j of active) {
-                if (i >= j) continue;
-                if (dist[i][j] < mi) { mi = dist[i][j]; a = i; b = j; }
-              }
-            }
-            return (a === -1) ? null : { a, b, d: mi };
-          }
-
-          while (active.size > 1) {
-            const pair = findMinPair();
-            if (!pair) break;
-            const { a, b, d } = pair;
-            const newCluster = {
-              id: 'n' + currentIndex,
-              members: clusters[a].members.concat(clusters[b].members),
-              size: clusters[a].size + clusters[b].size,
-              children: [clusters[a], clusters[b]],
-              height: d,
-              name: null,
-              index: currentIndex
-            };
-            clusters.push(newCluster);
-            for (let i = 0; i < dist.length; i++) dist[i].push(Infinity);
-            dist.push(Array(dist.length + 1).fill(Infinity));
-
-            for (const i of active) {
-              if (i === a || i === b) continue;
-              let dnew;
-              if (linkage === 'single') {
-                dnew = Math.min(dist[i][a], dist[i][b]);
-              } else if (linkage === 'complete') {
-                dnew = Math.max(dist[i][a], dist[i][b]);
-              } else {
-                // Average linkage (UPGMA): size-weighted average of distances
-                const da = dist[i][a], db = dist[i][b];
-                const sa = clusters[a].size, sb = clusters[b].size;
-                dnew = (da * sa + db * sb) / (sa + sb);
-              }
-              dist[i][currentIndex] = dist[currentIndex][i] = dnew;
-            }
-            active.delete(a);
-            active.delete(b);
-            active.add(currentIndex);
-            currentIndex++;
-          }
-          const rootIndex = Array.from(active)[0];
-          return clusters[rootIndex];
-        }
-
-        // --- Layout computation ---
-        function layoutTree(root) {
-          const leaves = [];
-          (function collect(node) {
-            if (!node.children) { leaves.push(node); return; }
-            collect(node.children[0]);
-            collect(node.children[1]);
-          })(root);
-          const leafY = new Map();
-          leaves.forEach((l, i) => leafY.set(l.id, i));
-          (function assign(node) {
-            if (!node.children) { node.x = 0; node.y = leafY.get(node.id); return node; }
-            const left = assign(node.children[0]);
-            const right = assign(node.children[1]);
-            node.x = node.height;
-            node.y = (left.y + right.y) / 2;
-            return node;
-          })(root);
-          let maxH = 0;
-          (function traverse(n) {
-            if (n.height > maxH) maxH = n.height;
-            if (n.children) { traverse(n.children[0]); traverse(n.children[1]); }
-          })(root);
-          if (maxH === 0) maxH = 1;
-          return { root, leaves, maxH };
-        }
-
-        function collectMerges(node, merges = []) {
-          if (!node.children) return merges;
-          merges.push({ node, height: node.height });
-          collectMerges(node.children[0], merges);
-          collectMerges(node.children[1], merges);
-          return merges;
-        }
-        function cutTree(root, k) {
-          const merges = collectMerges(root).sort((a, b) => b.height - a.height);
-          if (k <= 1) return [root];
-          const leaves = [];
-          (function collectLeaves(n) { if (!n.children) leaves.push(n); else { collectLeaves(n.children[0]); collectLeaves(n.children[1]); } })(root);
-          if (k >= leaves.length) return leaves;
-          let clusters = [root];
-          let i = 0;
-          while (clusters.length < k && i < merges.length) {
-            const target = merges[i].node;
-            const idx = clusters.findIndex(c => c === target);
-            if (idx !== -1 && target.children) {
-              clusters.splice(idx, 1, target.children[0], target.children[1]);
-            }
-            i++;
-          }
-          let j = 0;
-          while (clusters.length < k && j < clusters.length) {
-            if (clusters[j].children) {
-              const t = clusters[j];
-              clusters.splice(j, 1, t.children[0], t.children[1]);
-            }
-            j++;
-          }
-          return clusters.slice(0, k);
-        }
-        function assignClusterIds(root, clusters) {
-          const assign = {};
-          clusters.forEach((c, ci) => {
-            (function mark(n) {
-              if (!n.children) { assign[n.id] = ci; return; }
-              mark(n.children[0]);
-              mark(n.children[1]);
-            })(c);
-          });
-          return assign;
-        }
-        function getColor(i) {
-          const palette = [
-            '#1f77b4','#ff7f0e','#2ca02c','#d62728','#9467bd','#8c564b','#e377c2',
-            '#7f7f7f','#bcbd22','#17becf','#a6cee3','#b2df8a','#fb9a99','#fdbf6f','#cab2d6'
-          ];
-          return palette[i % palette.length];
-        }
-        // Compute a short label from most frequent categories in a cluster (based on feature sums).
-        function computeClusterLabel(clusterNode, maxAttrs = 2) {
-          const counts = new Array(featureNames.length).fill(0);
-          (function collect(n) {
-            if (!n.children) {
-              n.members.forEach(mi => {
-                const vec = items[mi].vec;
-                for (let fi = 0; fi < vec.length; fi++) {
-                  if (Number.isFinite(vec[fi]) && vec[fi] > 0) counts[fi] += Math.max(0, vec[fi]);
-                }
-              });
-              return;
-            }
-            collect(n.children[0]);
-            collect(n.children[1]);
-          })(clusterNode);
-          const arr = featureNames.map((f, fi) => [f, counts[fi]])
-            .filter(([, c]) => c > 0)
-            .sort((a, b) => b[1] - a[1]);
-          if (arr.length === 0) return '—';
-          return arr.slice(0, maxAttrs).map(a => a[0]).join(', ');
-        }
-
-        // draw function (uses clusterMap for badges)
-        function drawDendrogram(containerId, layout, items, clusterMap = {}, opts = {}) {
-          const w = opts.width || cfg.width;
-          const h = opts.height || Math.max(420, layout.leaves.length * cfg.heightPerLeaf);
-          const margin = { top: 40, right: 20, bottom: 20, left: 220 };
-          const innerW = w - margin.left - margin.right;
-          const innerH = h - margin.top - margin.bottom;
-          function xScale(height) { return margin.left + (height / layout.maxH) * innerW; }
-          function yScale(yIndex) { return margin.top + (yIndex / (layout.leaves.length - 1 || 1)) * innerH; }
-
-          const container = document.getElementById(containerId);
-          container.innerHTML = '';
-          const svgNS = "http://www.w3.org/2000/svg";
-          const svg = document.createElementNS(svgNS, 'svg');
-          svg.setAttribute('width', w);
-          svg.setAttribute('height', h);
-          container.appendChild(svg);
-
-          function drawLinks(node) {
-            if (!node.children) return;
-            const left = node.children[0];
-            const right = node.children[1];
-            const x = xScale(node.x);
-            const xl = xScale(left.x);
-            const xr = xScale(right.x);
-            const yl = yScale(left.y);
-            const yr = yScale(right.y);
-
-            const hlineL = document.createElementNS(svgNS, 'path');
-            hlineL.setAttribute('d', `M ${xl} ${yl} H ${x}`);
-            hlineL.setAttribute('class', 'link');
-            svg.appendChild(hlineL);
-
-            const hlineR = document.createElementNS(svgNS, 'path');
-            hlineR.setAttribute('d', `M ${xr} ${yr} H ${x}`);
-            hlineR.setAttribute('class', 'link');
-            svg.appendChild(hlineR);
-
-            const vline = document.createElementNS(svgNS, 'path');
-            vline.setAttribute('d', `M ${x} ${yl} V ${yr}`);
-            vline.setAttribute('class', 'link');
-            svg.appendChild(vline);
-
-            drawLinks(left);
-            drawLinks(right);
-          }
-          drawLinks(layout.root);
-
-          layout.leaves.forEach(leaf => {
-            const y = yScale(leaf.y);
-            const x = margin.left - 12;
-            const g = document.createElementNS(svgNS, 'g');
-            g.setAttribute('class', 'node');
-            const text = document.createElementNS(svgNS, 'text');
-            const cid = clusterMap[leaf.id];
-            text.setAttribute('x', x);
-            text.setAttribute('y', y + 4);
-            text.setAttribute('text-anchor', 'end');
-            text.textContent = leaf.name || items[leaf.members[0]].name;
-            if (typeof cid !== 'undefined') {
-              text.textContent = text.textContent + ` — C${cid + 1}`;
-              text.setAttribute('fill', getColor(cid));
-            } else {
-              text.setAttribute('fill', '#000');
-            }
-            g.appendChild(text);
-            svg.appendChild(g);
-          });
-
-          const ticks = 5;
-          for (let i = 0; i <= ticks; i++) {
-            const hx = margin.left + (i / ticks) * innerW;
-            const line = document.createElementNS(svgNS, 'line');
-            line.setAttribute('x1', hx);
-            line.setAttribute('x2', hx);
-            line.setAttribute('y1', margin.top - 10);
-            line.setAttribute('y2', margin.top - 2);
-            line.setAttribute('stroke', '#6666ff');
-            line.setAttribute('stroke-width', '1');
-            svg.appendChild(line);
-
-            const label = document.createElementNS(svgNS, 'text');
-            label.setAttribute('x', hx);
-            label.setAttribute('y', margin.top - 14);
-            label.setAttribute('text-anchor', 'middle');
-            const val = Math.round((i / ticks) * layout.maxH * 100) / 100;
-            label.textContent = val;
-            svg.appendChild(label);
-          }
-
-          // --- DRAW THRESHOLD LINE IF PROVIDED ---
-          if (typeof opts.thresholdX !== 'undefined') {
-            const tx = opts.thresholdX;
-            const thrLine = document.createElementNS(svgNS, 'line');
-            thrLine.setAttribute('x1', tx);
-            thrLine.setAttribute('x2', tx);
-            thrLine.setAttribute('y1', margin.top - 8);
-            thrLine.setAttribute('y2', h - margin.bottom + 6);
-            thrLine.setAttribute('stroke', '#d62728');
-            thrLine.setAttribute('stroke-width', '2');
-            thrLine.setAttribute('stroke-dasharray', '6,4');
-            thrLine.setAttribute('opacity', '0.9');
-            svg.appendChild(thrLine);
-
-            if (typeof opts.thresholdVal !== 'undefined') {
-              const tlabel = document.createElementNS(svgNS, 'text');
-              tlabel.setAttribute('x', tx + 6);
-              tlabel.setAttribute('y', margin.top + 12);
-              tlabel.setAttribute('fill', '#d62728');
-              tlabel.textContent = `Threshold: ${Math.round(opts.thresholdVal * 100) / 100}`;
-              svg.appendChild(tlabel);
-            }
-          }
-        }
-
-        const kRange = document.getElementById('kRange');
-        const kValue = document.getElementById('kValue');
-        const linkageSelect = document.getElementById('linkageSelect');
-        const distSelect = document.getElementById('distSelect');
-        const labelNum = document.getElementById('labelNum');
-
-        function updateKMax() {
-          const tree = agglomerative(items, cfg.distanceFn, linkageSelect ? linkageSelect.value : cfg.initialLinkage);
-          const layout = layoutTree(tree);
-          const maxK = layout.leaves.length;
-          if (kRange) {
-            kRange.max = maxK;
-            if (Number(kRange.value) > maxK) kRange.value = maxK;
-          }
-          if (kValue && kRange) kValue.textContent = kRange.value;
-        }
-
-        function render(linkage, k) {
-          const tree = agglomerative(items, cfg.distanceFn, linkage);
-          const layout = layoutTree(tree);
-          const clusterRoots = cutTree(layout.root, k);
-          const clusterMap = assignClusterIds(layout.root, clusterRoots);
-
-          // threshold
-          const merges = collectMerges(layout.root).map(m => m.height).sort((a, b) => b - a);
-          let thresholdVal = 0;
-          if (k <= 1) {
-            thresholdVal = layout.maxH;
-          } else if (k >= layout.leaves.length) {
-            thresholdVal = 0;
-          } else {
-            const idx = Math.min(merges.length - 1, k - 2);
-            thresholdVal = merges[idx] || 0;
-          }
-          const w = cfg.width;
-          const margin = { top: 40, right: 20, bottom: 20, left: 220 };
-          const innerW = w - margin.left - margin.right;
-          const tx = margin.left + (thresholdVal / layout.maxH) * innerW;
-
-          // legend
-          const legend = document.getElementById('legend');
-          if (legend) {
-            legend.innerHTML = '';
-            for (let i = 0; i < clusterRoots.length; i++) {
-              const sw = document.createElement('span');
-              sw.className = 'item';
-              const cb = document.createElement('span');
-              cb.className = 'colorbox';
-              cb.style.background = getColor(i);
-              sw.appendChild(cb);
-
-              const cnt = (function countLeaves(n) { if (!n.children) return 1; return countLeaves(n.children[0]) + countLeaves(n.children[1]); })(clusterRoots[i]);
-              const autoLabel = computeClusterLabel(clusterRoots[i], cfg.labelNum);
-              const labelText = document.createElement('span');
-              labelText.textContent = `C${i + 1} (${cnt}) — ${autoLabel}`;
-              labelText.style.cursor = 'pointer';
-              labelText.title = 'Click to edit the cat. label';
-              sw.appendChild(labelText);
-
-              labelText.addEventListener('click', function onClick() {
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.value = (labelText.textContent.split('—').slice(1).join('—') || autoLabel).trim();
-                input.className = 'editable-input';
-                input.style.minWidth = '100px';
-                function commit() {
-                  const newVal = input.value.trim() || autoLabel;
-                  labelText.textContent = `C${i + 1} (${cnt}) — ${newVal}`;
-                  labelText.addEventListener('click', onClick, { once: true });
-                  input.replaceWith(labelText);
-                }
-                function cancel() {
-                  labelText.addEventListener('click', onClick, { once: true });
-                  input.replaceWith(labelText);
-                }
-                sw.replaceChild(input, labelText);
-                input.focus();
-                input.select();
-                input.addEventListener('blur', commit, { once: true });
-                input.addEventListener('keydown', (ev) => {
-                  if (ev.key === 'Enter') input.blur();
-                  if (ev.key === 'Escape') { cancel(); }
-                });
-              }, { once: true });
-
-              legend.appendChild(sw);
-            }
-          }
-
-          drawDendrogram(containerId, layout, items, clusterMap, {
-            width: cfg.width,
-            height: Math.max(420, layout.leaves.length * cfg.heightPerLeaf),
-            thresholdX: tx,
-            thresholdVal: thresholdVal
-          });
-        }
-
-
-        kRange.addEventListener('input', ()=>{
-          kValue.textContent = kRange.value;
-          render(linkageSelect.value, Number(kRange.value));
-        });
-
-        document.getElementById('redraw').addEventListener('click', ()=>{
-          updateKMax();
-          render(linkageSelect.value, Number(kRange.value));
-        });
-
-        linkageSelect.addEventListener('change', ()=>{
-          updateKMax();
-          render(linkageSelect.value, Number(kRange.value));
-        });
-        
-        labelNum.addEventListener('change', ()=>{
-          cfg.labelNum = labelNum.value;
-          updateKMax();
-          render(linkageSelect.value, Number(kRange.value));
-        });
-
-        distSelect.addEventListener('change', ()=>{
-          const key = distSelect.value;
-          if (DISTANCE_FUNCS.hasOwnProperty(key)) {
-            cfg.distanceFn = DISTANCE_FUNCS[key];
-          } else {
-            console.warn('Unknown distance algorithm:', key);
-          }
-          updateKMax();
-          render(linkageSelect.value, Number(kRange.value));
-        });
-
-        document.getElementById('exportSvg').addEventListener('click', () => inlineAndExportSVG('dendrogram.svg'));
-
-        // initial render
-        linkageSelect.value = cfg.initialLinkage || linkageSelect.value;
-        distSelect.value = cfg.distanceFn.name || distSelect.value;
-        labelNum.value = cfg.labelNum || labelNum.value;
-        kRange.value = Math.min(Number(kRange.max), cfg.initialK || Number(kRange.value));
-        updateKMax();
-        render(linkageSelect.value, Number(kRange.value));
-}
 
 
 
